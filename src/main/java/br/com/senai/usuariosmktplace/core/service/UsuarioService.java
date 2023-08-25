@@ -70,8 +70,8 @@ public class UsuarioService {
 
 	private List<String> fracionar(String nomeCompleto) {
 		List<String> nomeFracionado = new ArrayList<String>();
-		if (nomeCompleto != null && !nomeCompleto.isBlank()) {
-
+		if (!Strings.isNullOrEmpty(nomeCompleto)) {
+			nomeCompleto = nomeCompleto.trim();
 			String[] partesDoNome = nomeCompleto.split(" ");
 			for (String parte : partesDoNome) {
 				boolean isNaoContemArtigo = !parte.equalsIgnoreCase("de") && !parte.equalsIgnoreCase("e")
@@ -95,6 +95,9 @@ public class UsuarioService {
 				loginGerado = partesDoNome.get(0) + "." + partesDoNome.get(i);
 				usuarioEncontrado = dao.buscarPor(loginGerado);
 				if (usuarioEncontrado == null) {
+					if(loginGerado.length() > 50) {
+						loginGerado = loginGerado.substring(0, 50);
+					}
 					return loginGerado;
 				}
 			}
