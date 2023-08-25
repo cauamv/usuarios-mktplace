@@ -6,7 +6,7 @@ public class InitApp {
 
 	public static void main(String[] args) {
 		UsuarioService service = new UsuarioService();
-		service.validar("jose 1234");
+
 	}
 
 }
