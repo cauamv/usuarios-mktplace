@@ -64,6 +64,13 @@ public class UsuarioService {
 		return usuarioAlterado;
 	}
 
+	public Usuario buscarPor(String login) {
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(login), "O login é obrigatório");
+		Usuario usuarioEncontrado = dao.buscarPor(login);
+		Preconditions.checkNotNull(usuarioEncontrado, "Não foi encontrado o usuário vinculado ao login informado");
+		return usuarioEncontrado;
+	}
+
 	private String removerAcentoDo(String nomeCompleto) {
 		return Normalizer.normalize(nomeCompleto, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 	}
@@ -95,7 +102,7 @@ public class UsuarioService {
 				loginGerado = partesDoNome.get(0) + "." + partesDoNome.get(i);
 				usuarioEncontrado = dao.buscarPor(loginGerado);
 				if (usuarioEncontrado == null) {
-					if(loginGerado.length() > 50) {
+					if (loginGerado.length() > 50) {
 						loginGerado = loginGerado.substring(0, 50);
 					}
 					return loginGerado;
