@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
@@ -14,13 +16,19 @@ import com.google.common.base.Strings;
 import br.com.senai.usuariosmktplace.core.dao.DaoUsuario;
 import br.com.senai.usuariosmktplace.core.dao.FactoryDao;
 import br.com.senai.usuariosmktplace.core.domain.Usuario;
+import jakarta.annotation.PostConstruct;
 
+@Service
 public class UsuarioService {
 
+	@Autowired
+	private FactoryDao factoryDao;
+	
 	private DaoUsuario dao;
 
-	public UsuarioService() {
-		this.dao = FactoryDao.getInstance().getDaoUsuario();
+	@PostConstruct
+	public void inicializar() {
+		this.dao = factoryDao.getDaoUsuario();
 	}
 
 	public Usuario criarPor(String nomeCompleto, String senha) {
@@ -35,32 +43,19 @@ public class UsuarioService {
 
 	public Usuario atualizarPor(String login, String nomeCompleto, String senhaAntiga, String senhaNova) {
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(login), "O login é obrigatório para a atualização");
-
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(senhaAntiga),
 				"A senha antiga é obrigatória para a atualização");
-
 		this.validar(nomeCompleto, senhaNova);
-
 		Usuario usuarioSalvo = dao.buscarPor(login);
-
 		Preconditions.checkNotNull(usuarioSalvo, "Não foi encontrado usuário vinculado ao login informado");
-
 		String senhaAntigaCriptografada = gerarHashDa(senhaAntiga);
-
 		boolean isSenhaValida = senhaAntigaCriptografada.equals(usuarioSalvo.getSenha());
-
 		Preconditions.checkArgument(isSenhaValida, "A senha antiga não confere");
-
 		Preconditions.checkArgument(!senhaAntiga.equals(senhaNova), "A senha nova não pode ser igual a senha anterior");
-
 		String senhaNovaCriptografada = gerarHashDa(senhaNova);
-
 		Usuario usuarioAlterado = new Usuario(login, senhaNovaCriptografada, nomeCompleto);
-
 		this.dao.alterar(usuarioAlterado);
-
 		usuarioAlterado = dao.buscarPor(login);
-
 		return usuarioAlterado;
 	}
 
